@@ -1,0 +1,64 @@
+variant: fcos
+version: 1.5.0
+passwd:
+  users:
+    - name: core
+      groups:
+        - root
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDFPly2MYEeh4FtFtftOa0qasGW4VNIzYv/ZzheQ/dFs martin@fedora
+systemd:
+  units:
+    - name: serial-getty@ttyS0.service
+      dropins:
+        - name: autologin-core.conf
+          contents: |
+            [Service]
+            # Override Execstart in main unit
+            ExecStart=
+            # Add new Execstart with `-` prefix to ignore failure`
+            ExecStart=-/usr/sbin/agetty --autologin core --noclear %I $TERM
+    - name: containerd.service
+      enabled: true
+      dropins:
+        - name: 99-proxy.conf
+          contents: |
+            [Service]
+            EnvironmentFile=/etc/proxy.env
+    # Installing vim as a layered package with rpm-ostree
+    - name: rpm-ostree-install-vim.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Layer with dependenies
+        Wants=network-online.target
+        After=network-online.target
+        # We run before `zincati.service` to avoid conflicting rpm-ostree
+        # transactions.
+        Before=zincati.service
+        ConditionPathExists=!/var/lib/%N.stamp
+
+        [Service]
+        EnvironmentFile=/etc/proxy.env
+        Type=oneshot
+        RemainAfterExit=yes
+        # `--allow-inactive` ensures that rpm-ostree does not return an error
+        # if the package is already installed. This is useful if the package is
+        # added to the root image in a future Fedora CoreOS release as it will
+        # prevent the service from failing.
+        ExecStart=/usr/bin/rpm-ostree install -y --allow-inactive vim git qemu-guest-agent
+        ExecStart=/bin/touch /var/lib/%N.stamp
+        ExecStart=/bin/systemctl --no-block reboot
+
+        [Install]
+        WantedBy=multi-user.target
+storage:
+  links:
+    - path: /etc/localtime
+      target: ../usr/share/zoneinfo/Europe/Prague
+  files:
+    - path: /etc/proxy.env
+      mode: 0644
+      contents:
+        inline: |-
+          http_proxy="http://172.16.100.146:3128"
