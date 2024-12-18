@@ -1,0 +1,10 @@
+{
+  "name": "node1",
+  "profile": "default",
+  "selector": {
+    "mac": "BC:24:11:36:97:69"
+  },
+  "metadata": {
+    "fleet_metadata": "role=worker"
+  }
+}
