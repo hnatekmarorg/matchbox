@@ -1,0 +1,16 @@
+{
+  "id": "default",
+  "name": "Container linux base",
+  "cloud_id": "",
+  "ignition_id": "worker.ign",
+  "generic_id": "some-service.cfg",
+  "boot": {
+    "kernel": "https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/41.20241122.3.0/x86_64/fedora-coreos-41.20241122.3.0-live-kernel-x86_64",
+    "initrd": ["https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/41.20241122.3.0/x86_64/fedora-coreos-41.20241122.3.0-live-initramfs.x86_64.img"],
+    "args": [
+      "coreos.config.url=http://172.16.100.60:8080/ignition?uuid=${uuid}&mac=${mac:hexhyp}",
+      "coreos.first_boot=yes",
+      "coreos.autologin"
+    ]
+  },
+}
