@@ -1,0 +1,21 @@
+version: "3"
+vars:
+  BUTANE_IMAGE: quay.io/coreos/butane:release
+  CONTAINER_RUNTIME_ARGS: "--privileged -i -v $(pwd):$(pwd) -w $(pwd) --rm --security-opt label=disable"
+  CONTAINER_RUNTIME:
+    # Detect whether either podman or docker is installed
+    sh: if which podman &> /dev/null; then echo podman; elif which docker &> /dev/null; then echo docker; else echo "No runtime detected"; exit 1; fi
+
+
+tasks:
+  generate_butane_config:
+    cmds:
+      - mkdir -p "./butane"
+      - "{{.CONTAINER_RUNTIME}} run {{.CONTAINER_RUNTIME_ARGS}} {{.BUTANE_IMAGE}} -d . < {{.BUTANE_FILE_PATH}} > ./ignition/{{.IGNITION_OUTPUT_FILE}}"
+
+  default:
+    cmds:
+      - task: generate_butane_config
+        vars:
+          BUTANE_FILE_PATH: "./ignition/base.yml"
+          IGNITION_OUTPUT_FILE: "base.ign"
