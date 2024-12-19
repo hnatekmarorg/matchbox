@@ -1,5 +1,8 @@
 {
   "name": "all",
   "profile": "coreos",
+  "selector": {
+    "mac": "BC:24:11:E2:BC:A4"
+  },
   "metadata": {}
 }
