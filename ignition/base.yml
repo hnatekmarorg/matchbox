@@ -63,4 +63,4 @@ storage:
       mode: 0644
       contents:
         inline: |-
-          http_proxy="http://172.16.100.146:3128"
+          http_proxy="http://172.16.100.61:3128"

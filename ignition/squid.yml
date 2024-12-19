@@ -1,0 +1,41 @@
+variant: fcos
+version: 1.5.0
+
+ignition:
+  config:
+    merge:
+      - local: ./ignition/base.ign
+
+storage:
+  files:
+    - path: /etc/NetworkManager/system-connections/ens18.nmconnection
+      mode: 0600
+      contents:
+        inline: |
+          [connection]
+          id=ens18
+          type=ethernet
+          interface-name=ens18
+          [ipv4]
+          address1=172.16.100.61/24,172.16.100.1
+          dns=8.8.8.8;
+          dns-search=
+          may-fail=false
+          method=manual
+    - path: /etc/containers/systemd/squid.container
+      mode: 0644
+      contents:
+        inline: |
+          [Unit]
+          Description=Squid Proxy Server
+          
+          [Container]
+          Image=ubuntu/squid:6.10-24.10_edge
+          Restart=on-failure
+          Port=3128:3128
+          
+          [Service]
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
