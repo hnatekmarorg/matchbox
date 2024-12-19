@@ -1,5 +1,5 @@
 {
-  "id": "coreos",
+  "id": "squid",
   "name": "Container linux base",
   "ignition_id": "squid.ign",
   "boot": {

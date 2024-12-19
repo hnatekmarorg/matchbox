@@ -1,6 +1,6 @@
 {
   "name": "all",
-  "profile": "coreos",
+  "profile": "squid",
   "selector": {
     "mac": "BC:24:11:CF:06:21"
   },
