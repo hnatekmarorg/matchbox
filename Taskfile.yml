@@ -19,3 +19,9 @@ tasks:
         vars:
           BUTANE_FILE_PATH: "./ignition/base.yml"
           IGNITION_OUTPUT_FILE: "base.ign"
+
+      - for file in ignition/*.yml; do
+           export BUTANE_FILE_PATH=$file;
+           export IGNITION_OUTPUT_FILE=$(basename $file | sed 's/\.yml$//').ign;
+           task generate_butane_config;
+        done
