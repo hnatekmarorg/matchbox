@@ -28,12 +28,11 @@ storage:
         inline: |
           [Unit]
           Description=Squid Proxy Server
-          
+
           [Container]
-          Image=ubuntu/squid:6.10-24.10_edge
-          Restart=on-failure
-          Port=3128:3128
-          
+          Image=docker.io/ubuntu/squid:6.10-24.10_edge
+          PublishPort=3128:3128
+
           [Service]
           Restart=always
 

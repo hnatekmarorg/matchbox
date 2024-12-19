@@ -12,21 +12,6 @@ systemd:
     - name: docker.service
       mask: true
 
-    - name: install-distrobox.service
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Install Distrobox
-        After=network-online.target
-
-        [Service]
-        Type=oneshot
-        ExecStart=/usr/bin/bash -c "curl -s https://raw.githubusercontent.com/89luca89/distrobox/main/install | sh"
-        RemainAfterExit=yes
-
-        [Install]
-        WantedBy=multi-user.target
-
     - name: serial-getty@ttyS0.service
       dropins:
         - name: autologin-core.conf
