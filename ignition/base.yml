@@ -21,7 +21,7 @@ systemd:
         After=network-online.target
         # We run before `zincati.service` to avoid conflicting rpm-ostree
         # transactions.
-        Before=zincati.service
+        ConditionPathExists=/etc/ucore-autorebase/verified
         ConditionPathExists=!/var/lib/base-packages-installed.stamp
 
         [Service]
