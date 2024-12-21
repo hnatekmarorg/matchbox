@@ -8,6 +8,12 @@ ignition:
 
 storage:
   files:
+    - path: /etc/sssd/sssd.conf
+      mode: 0600
+      contents:
+        inline: |
+          [sssd]
+
     - path: /etc/NetworkManager/system-connections/ens18.nmconnection
       mode: 0600
       contents:
