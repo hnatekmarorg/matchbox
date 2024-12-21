@@ -31,8 +31,7 @@ systemd:
         # if the package is already installed. This is useful if the package is
         # added to the root image in a future Fedora CoreOS release as it will
         # prevent the service from failing.
-        ExecStart=/usr/bin/dnf install -y vim python3-pip https://github.com/openbao/openbao/releases/download/v2.1.0/bao_2.1.0_linux_amd64.rpm telegraf
-        ExecStart=/usr/bin/pip3 install vault-cli setuptools
+        ExecStart=/usr/bin/rpm-ostree install --allow-inactive -y vim python3-pip https://github.com/openbao/openbao/releases/download/v2.1.0/bao_2.1.0_linux_amd64.rpm telegraf
         ExecStart=/bin/touch /var/lib/base-packages-installed.stamp
         ExecStart=/bin/systemctl --no-block reboot
 
@@ -60,6 +59,8 @@ systemd:
         [Service]
         Type=oneshot
         StandardOutput=journal+console
+        # install additional dependencies before rebase
+        ExecStart=/usr/bin/pip3 install vault-cli setuptools #
         ExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-unverified-registry:ghcr.io/ublue-os/ucore:stable
         ExecStart=/usr/bin/touch /etc/ucore-autorebase/unverified
         ExecStart=/usr/bin/systemctl disable ucore-unsigned-autorebase.service
@@ -93,13 +94,13 @@ storage:
     - path: /etc/localtime
       target: ../usr/share/zoneinfo/Europe/Prague
   files:
-    - path: /etc/yum.repos.d/telegraf
+    - path: /etc/yum.repos.d/telegraf.repo
       mode: 0755
       contents:
         inline: |
           [influxdata]
           name = InfluxData Repository - Stable
-          baseurl = https://repos.influxdata.com/stable/\$basearch/main
+          baseurl = https://repos.influxdata.com/stable/x86_64/main
           enabled = 1
           gpgcheck = 1
           gpgkey = https://repos.influxdata.com/influxdata-archive_compat.key
