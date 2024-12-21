@@ -1,6 +1,7 @@
 resource "vault_token" "squid" {
   policies = [vault_policy.server_ro.name]
   renewable = true
+  ttl = "1h"
 }
 
 resource "proxmox_vm_qemu" "squid" {

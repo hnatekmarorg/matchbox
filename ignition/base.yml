@@ -12,6 +12,28 @@ systemd:
     - name: docker.service
       mask: true
 
+    - name: rotate-token.service
+      contents: |
+        [Unit]
+        Description=Rotate token from bao
+        
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=bao token renew
+
+    - name: rotate-token.timer
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Run rotate-token.service every minute
+        
+        [Timer]
+        OnCalendar=*:0/30
+        
+        [Install]
+        WantedBy=multi-user.target
+
     - name: rpm-ostree-install-base.service
       enabled: true
       contents: |
@@ -21,7 +43,8 @@ systemd:
         After=network-online.target
         # We run before `zincati.service` to avoid conflicting rpm-ostree
         # transactions.
-        ConditionPathExists=/etc/ucore-autorebase/verified
+        ConditionPathExists=/etc/ucore-autorebase/unverified
+        ConditionPathExists=/etc/ucore-autorebase/signed
         ConditionPathExists=!/var/lib/base-packages-installed.stamp
 
         [Service]
@@ -59,7 +82,6 @@ systemd:
         [Service]
         Type=oneshot
         StandardOutput=journal+console
-        ExecStart=/usr/bin/pip3 install vault-cli setuptools 
         ExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-unverified-registry:ghcr.io/ublue-os/ucore:stable
         ExecStart=/usr/bin/touch /etc/ucore-autorebase/unverified
         ExecStart=/usr/bin/systemctl disable ucore-unsigned-autorebase.service
