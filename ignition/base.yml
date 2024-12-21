@@ -56,6 +56,9 @@ systemd:
         [Install]
         WantedBy=multi-user.target
 storage:
+  directories:
+    - path: /etc/ucore-autorebase
+      mode: 0754
   links:
     - path: /etc/localtime
       target: ../usr/share/zoneinfo/Europe/Prague
