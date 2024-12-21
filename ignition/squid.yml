@@ -8,11 +8,10 @@ ignition:
 
 storage:
   files:
-    - path: /etc/sssd/sssd.conf
-      mode: 0600
+    - path: /etc/hostname
+      mode: 0644
       contents:
-        inline: |
-          [sssd]
+        inline: squid.hnatekmar.xyz
 
     - path: /etc/NetworkManager/system-connections/ens18.nmconnection
       mode: 0600

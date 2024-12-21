@@ -12,6 +12,33 @@ systemd:
     - name: docker.service
       mask: true
 
+    - name: rpm-ostree-install-base.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Layer vim with rpm-ostree
+        Wants=network-online.target
+        After=network-online.target
+        # We run before `zincati.service` to avoid conflicting rpm-ostree
+        # transactions.
+        Before=zincati.service
+        ConditionPathExists=!/var/lib/base-packages-installed.stamp
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        # `--allow-inactive` ensures that rpm-ostree does not return an error
+        # if the package is already installed. This is useful if the package is
+        # added to the root image in a future Fedora CoreOS release as it will
+        # prevent the service from failing.
+        ExecStart=/usr/bin/dnf install -y vim python3-pip https://github.com/openbao/openbao/releases/download/v2.1.0/bao_2.1.0_linux_amd64.rpm telegraf
+        ExecStart=/usr/bin/pip3 install vault-cli setuptools
+        ExecStart=/bin/touch /var/lib/base-packages-installed.stamp
+        ExecStart=/bin/systemctl --no-block reboot
+
+        [Install]
+        WantedBy=multi-user.target
+
     - name: containerd.service
       enabled: true
       dropins:
@@ -26,6 +53,8 @@ systemd:
         Description=uCore autorebase to unsigned OCI and reboot
         ConditionPathExists=!/etc/ucore-autorebase/unverified
         ConditionPathExists=!/etc/ucore-autorebase/signed
+        ConditionPathExists=/var/lib/base-packages-installed.stamp
+
         After=network-online.target
         Wants=network-online.target
         [Service]
@@ -44,6 +73,7 @@ systemd:
         Description=uCore autorebase to signed OCI and reboot
         ConditionPathExists=/etc/ucore-autorebase/unverified
         ConditionPathExists=!/etc/ucore-autorebase/verified
+        ConditionPathExists=/var/lib/base-packages-installed.stamp
         After=network-online.target
         Wants=network-online.target
         [Service]
@@ -63,6 +93,26 @@ storage:
     - path: /etc/localtime
       target: ../usr/share/zoneinfo/Europe/Prague
   files:
+    - path: /etc/yum.repos.d/telegraf
+      mode: 0755
+      contents:
+        inline: |
+          [influxdata]
+          name = InfluxData Repository - Stable
+          baseurl = https://repos.influxdata.com/stable/\$basearch/main
+          enabled = 1
+          gpgcheck = 1
+          gpgkey = https://repos.influxdata.com/influxdata-archive_compat.key
+    - path: /etc/profile.d/zz-defaults.sh
+      contents:
+        inline: |
+          export EDITOR=vim
+    - path: /etc/profile.d/zz-openbao.sh
+      mode: 0755
+      contents:
+        inline: |-
+          export VAULT_ADDR=https://openbao.hnatekmar.xyz
+          export BAO_ADDR=https://openbao.hnatekmar.xyz
     - path: /etc/proxy.env
       mode: 0644
       contents:
