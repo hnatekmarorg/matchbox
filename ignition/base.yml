@@ -76,6 +76,26 @@ storage:
     - path: /etc/localtime
       target: ../usr/share/zoneinfo/Europe/Prague
   files:
+    - path: /etc/containers/registries.conf.d/mirrors.conf
+      mode: 0644
+      contents:
+        inline: |
+          [[registry]]
+          location="mirror-docker-io.hnatekmar.xyz"
+          prefix="docker.io"
+
+          [[registry]]
+          location="mirror-gcr-io.hnatekmar.xyz"
+          prefix="gcr.io"
+
+          [[registry]]
+          location="mirror-ghcr-io.hnatekmar.xyz"
+          prefix="ghcr.io"
+
+          [[registry]]
+          location="mirror-quay-io.hnatekmar.xyz"
+          prefix="quay.io"
+
     - path: /etc/yum.repos.d/telegraf.repo
       mode: 0755
       contents:
