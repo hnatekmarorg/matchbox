@@ -12,15 +12,33 @@ systemd:
     - name: docker.service
       mask: true
 
+    - name: telegraf.service
+      contents: |
+        [Unit]
+        Description=The plugin-driven server agent for reporting metrics into InfluxDB
+        Documentation=https://github.com/influxdata/telegraf
+        After=network.target
+
+        [Service]
+        Type=simple
+        ExecStart=/bin/bash /usr/bin/run-telegraf
+        Restart=on-failure
+        StandardOutput=syslog
+        StandardError=syslog
+
+        [Install]
+        WantedBy=multi-user.target
+
     - name: rotate-token.service
       contents: |
         [Unit]
         Description=Rotate token from bao
-        
+
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStart=/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao token renew 
+        ExecStart=/bin/bash -c '/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao token renew'
+
 
     - name: rotate-token.timer
       enabled: true
@@ -76,6 +94,31 @@ storage:
     - path: /etc/localtime
       target: ../usr/share/zoneinfo/Europe/Prague
   files:
+    - path: /usr/bin/run-telegraf
+      mode: 0755
+      contents:
+        inline: |
+          #!/bin/bash
+          
+          export INFLUX_TOKEN=$(/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -field=influx_token secret/servers/common)
+          exec /usr/bin/telegraf --config /etc/telegraf/custom-telegraf.conf
+
+    - path: /etc/telegraf/custom-telegraf.conf
+      mode: 0644
+      contents:
+        inline: |
+          [agent]
+            interval = "10s"
+            metric_batch_size = 1000
+          [[inputs.cpu]]
+          [[inputs.disk]]
+          [[inputs.diskio]]
+          [[inputs.mem]]
+          [[inputs.processes]]
+          [[inputs.system]]
+          [[outputs.influxdb_v2]]
+          urls = ["https://influx.hnatekmar.xyz"]
+
     - path: /etc/containers/registries.conf.d/mirrors.conf
       mode: 0644
       contents:
