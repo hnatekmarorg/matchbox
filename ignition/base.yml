@@ -21,7 +21,7 @@ systemd:
 
         [Service]
         Type=simple
-        ExecStart=/bin/bash /usr/bin/run-telegraf
+        ExecStart=/bin/bash /usr/local/bin/run-telegraf
         Restart=on-failure
         StandardOutput=syslog
         StandardError=syslog
@@ -94,7 +94,7 @@ storage:
     - path: /etc/localtime
       target: ../usr/share/zoneinfo/Europe/Prague
   files:
-    - path: /usr/bin/run-telegraf
+    - path: /usr/local/bin/run-telegraf
       mode: 0755
       contents:
         inline: |
