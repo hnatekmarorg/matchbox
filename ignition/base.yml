@@ -12,12 +12,27 @@ systemd:
     - name: docker.service
       mask: true
 
+    - name: telegraf-env.service
+      contents: |
+        [Unit]
+        Description=Retrieve token from Vault for telegraf
+        WantedBy=multi-user.target
+        ConditionPathExists=/root/.vault-token
+        
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/bash -c '/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -field=telegraf_token secret/servers/common > /etc/telegraf.token'
+        
+        [Install]
+        WantedBy=default.target
     - name: telegraf.service
       contents: |
         [Unit]
         Description=The plugin-driven server agent for reporting metrics into InfluxDB
         Documentation=https://github.com/influxdata/telegraf
         After=network.target
+        ConditionPathExists=/etc/telegraf.token
 
         [Service]
         Type=simple
@@ -26,29 +41,6 @@ systemd:
         StandardOutput=syslog
         StandardError=syslog
 
-        [Install]
-        WantedBy=multi-user.target
-
-    - name: rotate-token.service
-      contents: |
-        [Unit]
-        Description=Rotate token from bao
-
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        ExecStart=/bin/bash -c '/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao token renew'
-
-
-    - name: rotate-token.timer
-      enabled: true
-      contents: |
-        [Unit]
-        Description=Run rotate-token.service every minute
-        
-        [Timer]
-        OnCalendar=*:0/30
-        
         [Install]
         WantedBy=multi-user.target
 
