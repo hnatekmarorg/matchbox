@@ -19,14 +19,15 @@ systemd:
         Description=Retrieve token from Vault for telegraf
         ConditionPathExists=/root/.vault-token
         ConditionPathExists=!/etc/telegraf.token
-        
+
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStart=/bin/bash -c '/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=influx_token secret/servers/common | tr -d \"  > /etc/telegraf.token'
-        
+        ExecStart=/bin/bash -c '/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=influx_token secret/servers/common  > /etc/telegraf.token'
+
         [Install]
         WantedBy=default.target
+
 
     - name: telegraf.service
       enabled: true
@@ -94,9 +95,9 @@ storage:
       contents:
         inline: |
           #!/bin/bash
-          
-          export CUSTOM_TOKEN=$(cat /etc/telegraf.token | tr -d '\r')
-          
+
+          export CUSTOM_TOKEN=$(cat /etc/telegraf.token | tr -d '\r' | tr -d \")
+
           /usr/bin/telegraf --config /etc/telegraf/custom-telegraf.conf
 
     - path: /etc/telegraf/custom-telegraf.conf
@@ -215,6 +216,8 @@ storage:
           [[outputs.influxdb_v2]]
              urls=["https://influx.hnatekmar.xyz"]
              token="${CUSTOM_TOKEN?token not found}"
+             organization="home"
+             bucket="monitoring"
 
     - path: /etc/containers/registries.conf.d/mirrors.conf
       mode: 0644
