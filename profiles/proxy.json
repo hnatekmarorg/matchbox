@@ -10,7 +10,8 @@
       "coreos.live.rootfs_url=https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/41.20241122.3.0/x86_64/fedora-coreos-41.20241122.3.0-live-rootfs.x86_64.img",
       "ignition.firstboot",
       "ignition.platform.id=metal",
-      "ignition.config.url=http://matchbox.hnatekmar.xyz:8080/ignition?uuid=${uuid}&mac=${mac:hexhyp}"
+      "coreos.inst.install_dev=/dev/sda",
+      "coreos.inst.ignition_url=http://matchbox.hnatekmar.xyz:8080/ignition?uuid=${uuid}&mac=${mac:hexhyp}"
     ]
   }
 }
