@@ -1,0 +1,81 @@
+variant: fcos
+version: 1.5.0
+
+ignition:
+  config:
+    merge:
+      - local: ./ignition/base.ign
+
+
+systemd:
+  units:
+    - name: caddy-env.service
+      enabled: true
+      contents: |
+        [Unit]
+        Description=Retrieve token from Vault for telegraf
+        ConditionPathExists=/root/.vault-token
+        ConditionPathExists=!/etc/caddy/caddy.env
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/bash -c 'echo hnatekmar_secret_key=$(/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=hnatekmar_secret_key secret/servers/caddy) > /etc/caddy/caddy.env'
+        ExecStart=/bin/bash -c 'echo hnatekmar_api_key=$(/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=hnatekmar_api_key secret/servers/caddy) >> /etc/caddy/caddy.env'
+        ExecStart=/bin/bash -c 'echo algovector_secret_key=$(/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=algovector_api_key secret/servers/caddy) >> /etc/caddy/caddy.env'
+        ExecStart=/bin/bash -c 'echo algovector_api_key=$(/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=hnatekmar_api_key secret/servers/caddy) >> /etc/caddy/caddy.env'
+
+        [Install]
+        WantedBy=default.target
+
+
+storage:
+  directories:
+    - path: /etc/caddy
+
+  files:
+    - path: /etc/hostname
+      mode: 0644
+      contents:
+        inline: proxy.hnatekmar.xyz
+    - path: /etc/caddy/Caddyfile
+      mode: 0644
+      contents:
+        local: ./ignition/Caddyfile
+
+    - path: /etc/NetworkManager/system-connections/ens18.nmconnection
+      mode: 0600
+      contents:
+        inline: |
+          [connection]
+          id=ens18
+          type=ethernet
+          interface-name=ens18
+          [ipv4]
+          address1=172.16.100.63/24,172.16.100.1
+          dns=8.8.8.8;
+          dns-search=
+          may-fail=false
+          method=manual
+
+    - path: /etc/containers/systemd/caddy.container
+      mode: 0644
+      contents:
+        inline: |
+          [Unit]
+          Description=Squid Proxy Server
+          ConditionPathExists=/etc/caddy/caddy.env
+
+          [Container]
+          Image=gitea.hnatekmar.xyz/public/caddy:latest
+          PublishPort=80:80
+          PublishPort=443:443
+          
+          
+          EnvironmentFile=/etc/caddy/caddy.env
+
+          [Service]
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target

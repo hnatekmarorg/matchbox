@@ -3,6 +3,22 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
+        <entry key="Butane Config">
+          <value>
+            <SchemaInfo>
+              <option name="name" value="Butane Config" />
+              <option name="relativePathToSchema" value="https://raw.githubusercontent.com/Relativ-IT/Butane-Schemas/Release/Butane-Schema.json" />
+              <option name="applicationDefined" value="true" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="path" value="ignition/caddy.yml" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
         <entry key="Taskfile config">
           <value>
             <SchemaInfo>

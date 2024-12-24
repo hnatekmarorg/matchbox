@@ -1,0 +1,198 @@
+{
+  debug
+  servers :443 {
+        timeouts {
+                read_body 1h
+                read_header 1h
+                write 1h
+                idle  1h
+        }
+  }
+}
+
+(cors) {
+        @cors_preflight{args.0} method OPTIONS
+        @cors{args.0} header Origin {args.0}
+
+        handle @cors_preflight{args.0} {
+                header {
+                        Access-Control-Allow-Origin "{args.0}"
+                        Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+                        Access-Control-Allow-Headers *
+                        Access-Control-Max-Age "3600"
+                        defer
+                }
+                respond "" 204
+        }
+
+        handle @cors{args.0} {
+                header {
+                        Access-Control-Allow-Origin "{args.0}"
+                        Access-Control-Expose-Headers *
+                        defer
+                }
+        }
+}
+
+
+atuin.hnatekmar.xyz {
+  reverse_proxy * 172.16.100.124:8888
+}
+
+portainer.hnatekmar.xyz {
+  reverse_proxy * 172.16.100.124:9000
+}
+
+hnatekmar.xyz {
+  respond "caddy" 200
+}
+
+gitlab.hnatekmar.xyz {
+  reverse_proxy * 172.16.100.117:80
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+registry-gitlab.hnatekmar.xyz {
+  reverse_proxy * 172.16.100.117:5000
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+authentik.hnatekmar.xyz {
+
+  import cors https://netbird.hnatekmar.xyz
+  reverse_proxy localhost:9000
+
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+coder.hnatekmar.xyz {
+  reverse_proxy * 172.16.100.114:7080
+
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+mirror-*.hnatekmar.xyz {
+  @blocked not remote_ip 172.16.100.1/24
+  respond @blocked "Blocked" 403
+  reverse_proxy * 172.16.100.21
+
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+comfyui.hnatekmar.xyz {
+  @blocked not remote_ip 172.16.100.1/24
+  respond @blocked "Blocked" 403
+  reverse_proxy * 172.16.100.21
+
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+ollama.hnatekmar.xyz {
+  @blocked not remote_ip 172.16.100.1/24
+  respond @blocked "Blocked" 403
+  reverse_proxy * 172.16.100.21
+
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+gitea.hnatekmar.xyz {
+  import cors https://woodpecker.hnatekmar.xyz
+  request_body {
+        max_size 17GB
+  }
+
+  reverse_proxy http://172.16.100.113:3000
+
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+sillytavern.hnatekmar.xyz {
+  @blocked not remote_ip 172.16.100.1/24
+  respond @blocked "Blocked" 403
+  reverse_proxy * 172.16.100.21
+
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+influx.hnatekmar.xyz {
+  @blocked not remote_ip 172.16.100.1/24
+  respond @blocked "Blocked" 403
+  reverse_proxy * 172.16.100.21
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+
+*.hnatekmar.xyz {
+  reverse_proxy /outpost.goauthentik.io/* http://localhost:9000
+  reverse_proxy * 172.16.100.21
+  tls {
+    dns porkbun {
+      api_key {$hnatekmar_api_key}
+      api_secret_key {$hnatekmar_secret_key}
+    }
+  }
+}
+
+algovector.com {
+  reverse_proxy 172.16.100.131:3000
+}
+
+*.algovector.com {
+  reverse_proxy 172.16.100.21
+  tls {
+    dns porkbun {
+      api_key {$algovector_api_key}
+      api_secret_key {$algovector_secret_key}
+    }
+  }
+}

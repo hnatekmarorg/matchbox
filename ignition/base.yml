@@ -96,7 +96,7 @@ storage:
         inline: |
           #!/bin/bash
 
-          export CUSTOM_TOKEN=$(cat /etc/telegraf.token | tr -d '\r' | tr -d \")
+          export CUSTOM_TOKEN=$(cat /etc/telegraf.token | tr -d '\r' | tr -d \" | tr -d '\n')
 
           /usr/bin/telegraf --config /etc/telegraf/custom-telegraf.conf
 
