@@ -1,5 +1,5 @@
 {
-  "name": "all",
+  "name": "proxy",
   "profile": "proxy",
   "selector": {
     "mac": "52:E9:54:14:30:FA"
