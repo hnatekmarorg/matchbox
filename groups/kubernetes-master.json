@@ -1,6 +1,6 @@
 {
   "name": "all",
-  "profile": "kubernetes",
+  "profile": "kubernetes-master",
   "selector": {
     "mac": "BC:24:FF:BE:F9:E3"
   },

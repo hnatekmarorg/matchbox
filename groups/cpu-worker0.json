@@ -1,6 +1,6 @@
 {
   "name": "all",
-  "profile": "kubernetes",
+  "profile": "kubernetes-cpu-worker",
   "selector": {
     "mac": "BC:24:11:77:23:84"
   },

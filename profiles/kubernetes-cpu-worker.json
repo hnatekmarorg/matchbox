@@ -1,0 +1,18 @@
+{
+  "id": "kubernetes-cpu-worker",
+  "name": "kubernetes-cpu-worker",
+  "boot": {
+    "kernel": "https://github.com/siderolabs/talos/releases/download/v1.9.0/vmlinuz-amd64",
+    "initrd": ["https://github.com/siderolabs/talos/releases/download/v1.9.0/initramfs-amd64.xz"],
+    "args": [
+      "initrd=initramfs.xz",
+      "init_on_alloc=1",
+      "slab_nomerge",
+      "pti=on",
+      "console=tty0",
+      "printk.devkmsg=on",
+      "talos.platform=metal",
+      "talos.config=http://172.16.100.102:8000/home-cluster-cpu-worker0.yaml"
+    ]
+  }
+}

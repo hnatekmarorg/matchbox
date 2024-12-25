@@ -1,6 +1,6 @@
 {
-  "id": "control-plane",
-  "name": "control-plane",
+  "id": "kubernetes-master",
+  "name": "kubernetes-master",
   "boot": {
     "kernel": "https://github.com/siderolabs/talos/releases/download/v1.9.0/vmlinuz-amd64",
     "initrd": ["https://github.com/siderolabs/talos/releases/download/v1.9.0/initramfs-amd64.xz"],
