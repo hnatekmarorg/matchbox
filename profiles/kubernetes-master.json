@@ -12,8 +12,6 @@
       "console=tty0",
       "printk.devkmsg=on",
       "talos.platform=metal",
-      "ip=172.16.100.70::172.16.100.1::255.255.255.0::ens18:",
-      "ip=192.168.88.50::::255.255.255.0::ens19:",
       "talos.config=http://172.16.100.102:8000/home-cluster-k8s-master.yaml"
     ]
   }
