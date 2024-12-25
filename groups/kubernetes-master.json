@@ -1,0 +1,8 @@
+{
+  "name": "all",
+  "profile": "kubernetes-master",
+  "selector": {
+    "mac": "9A:AF:C1:DD:0B:0A"
+  },
+  "metadata": {}
+}
