@@ -2,7 +2,7 @@
   "name": "all",
   "profile": "kubernetes-master",
   "selector": {
-    "mac": "9A:AF:C1:DD:0B:0A"
+    "mac": "BC:24:FF:BE:F9:E3"
   },
   "metadata": {}
 }
