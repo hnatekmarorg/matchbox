@@ -1,26 +1,24 @@
-resource "vault_token" "squid" {
+resource "vault_token" "matchbox" {
   policies = [vault_policy.server_ro.name]
-  depends_on = [porkbun_dns_record.ingress]
   ttl = "4h"
 }
 
-resource "porkbun_dns_record" "squid" {
-  content = "172.16.100.61"
+resource "porkbun_dns_record" "matchbox-dns" {
   domain  = "hnatekmar.xyz"
-  name = "squid"
-  type    = "A"
+  name = "matchbox"
+  type = "A"
+  content = "172.16.100.60"
+  ttl = "3600"
 }
 
-resource "proxmox_vm_qemu" "squid" {
+resource "proxmox_vm_qemu" "matchbox" {
   tags = "terraform"
-  depends_on = [proxmox_vm_qemu.matchbox]
-  name = "squid.hnatekmar.xyz"
+  name = "matchbox.hnatekmar.xyz"
   target_node = "balteus"
-  pxe = true
-  memory = 8096
+  memory = 4096
   cores = 2
   bios = "ovmf"
-  boot = "order=scsi0;net0"
+  boot = "order=scsi0;ide2"
   agent = 0
 
   efidisk {
@@ -29,6 +27,13 @@ resource "proxmox_vm_qemu" "squid" {
   }
   scsihw = "virtio-scsi-pci"
   disks {
+    ide {
+        ide2 {
+          cdrom {
+            iso = "local:iso/matchbox-v0.0.25.iso"
+          }
+        }
+    }
     scsi {
       scsi0 {
         disk {
@@ -43,17 +48,16 @@ resource "proxmox_vm_qemu" "squid" {
     id = 0
     model = "virtio"
     bridge = "vmbr0"
-    macaddr = "BC:24:11:CF:06:21"
   }
 
   provisioner "file" {
     connection {
-      host = "172.16.100.61"
+      host = "172.16.100.60"
       user = "root"
       type = "ssh"
       private_key = file(var.ssh_private_key)
     }
     destination = "/root/.vault-token"
-    content     = vault_token.squid.client_token
+    content     = vault_token.matchbox.client_token
   }
 }

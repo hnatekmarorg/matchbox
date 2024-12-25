@@ -23,7 +23,7 @@ systemd:
         ExecStart=/bin/bash -c 'echo hnatekmar_secret_key=$(/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=hnatekmar_secret_key secret/server/caddy) > /etc/caddy/caddy.env'
         ExecStart=/bin/bash -c 'echo hnatekmar_api_key=$(/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=hnatekmar_api_key secret/server/caddy) >> /etc/caddy/caddy.env'
         ExecStart=/bin/bash -c 'echo algovector_secret_key=$(/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=algovector_api_key secret/server/caddy) >> /etc/caddy/caddy.env'
-        ExecStart=/bin/bash -c 'echo algovector_api_key=$(/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=hnatekmar_api_key secret/server/caddy) >> /etc/caddy/caddy.env'
+        ExecStart=/bin/bash -c 'echo algovector_api_key=$(/usr/bin/podman run -e BAO_ADDR=https://openbao.hnatekmar.xyz -e VAULT_TOKEN=$(cat /root/.vault-token) -ti quay.io/openbao/openbao kv get -format=json -field=algovector_secret_key secret/server/caddy) >> /etc/caddy/caddy.env'
 
         [Install]
         WantedBy=default.target

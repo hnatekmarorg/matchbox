@@ -1,6 +1,14 @@
 terraform {
   required_version = ">= 1.8.7"
   required_providers {
+    porkbun = {
+      source = "cullenmcdermott/porkbun"
+      version = "0.3.0"
+    }
+    talos = {
+      source = "siderolabs/talos"
+      version = "0.7.0"
+    }
     proxmox = {
       source  = "telmate/proxmox"
       version = "3.0.1-rc6"
@@ -16,7 +24,21 @@ terraform {
   }
 }
 
-// Vault
+variable "porkbun_secret_key" {
+  type = string
+  description = "Porkbun secret key"
+}
+
+variable "porkbun_api_key" {
+  type = string
+  description = "Porkbun secret key"
+}
+
+provider "porkbun" {
+  api_key    = var.porkbun_api_key
+  secret_key = var.porkbun_secret_key
+}
+
 variable "vault_address" {
   default = "https://openbao.hnatekmar.xyz"
   type = string
@@ -49,9 +71,9 @@ variable "proxmox_username" {
 
 provider "proxmox" {
   pm_tls_insecure = true
-  pm_api_url = "${var.api_url}"
-  pm_password = "${var.proxmox_password}"
-  pm_user = "${var.proxmox_username}"
+  pm_api_url = var.api_url
+  pm_password = var.proxmox_password
+  pm_user = var.proxmox_username
 }
 
 # Common setup
