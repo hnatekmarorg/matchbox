@@ -1,6 +1,6 @@
 {
   "name": "all",
-  "profile": "kubernetes-cpu-worker",
+  "profile": "kubernetes-gpu-worker",
   "selector": {
     "mac": "BC:24:11:E6:58:E2"
   },
