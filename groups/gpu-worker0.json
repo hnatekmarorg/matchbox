@@ -1,0 +1,8 @@
+{
+  "name": "all",
+  "profile": "kubernetes-cpu-worker",
+  "selector": {
+    "mac": "BC:24:11:E6:58:E2"
+  },
+  "metadata": {}
+}
