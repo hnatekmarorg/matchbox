@@ -1,0 +1,158 @@
+---
+clusterName: home-cluster
+talosVersion: v1.9.0
+kubernetesVersion: v1.30.0
+endpoint: https://192.168.88.234:6443
+#domain: hnatekmar.xyz
+allowSchedulingOnMasters: false
+#additionalMachineCertSans:
+#  - 192.168.88.234
+additionalApiServerCertSans:
+  - kube-production.hnatekmar.xyz
+#clusterPodNets:
+#  - 10.244.0.0/16
+#clusterSvcNets:
+#  - 10.96.0.0/12
+#cniConfig:
+#  name: custom
+#  urls:
+#    - https://raw.githubusercontent.com/bjw-s/home-ops/main/infrastructure/talos/cluster-0/cni/install.yaml
+#  - |-
+#    - op: add
+#      path: /machine/env
+#      value:
+#        GRPC_GO_LOG_SEVERITY_LEVEL: error
+
+cniConfig:
+  name: flannel
+  flannel:
+    extraArgs:
+      - --iface-can-reach=192.168.88.1
+
+patches:
+  - |-
+    - op: add
+      path: /machine/registries/mirrors
+      value:
+        docker.io:
+          endpoints:
+            - https://mirror-docker-io.hnatekmar.xyz/
+        gcr.io:
+          endpoints:
+            - https://mirror-gcr-io.hnatekmar.xyz
+        ghcr.io:
+          endpoints:
+            - https://mirror-ghcr-io.hnatekmar.xyz
+        quay.io:
+          endpoints:
+            - https://mirror-quay-io.hnatekmar.xyz
+
+nodes:
+  - hostname: k8s-master
+    installDiskSelector:
+      size: "> 16GB"
+    ipAddress: 192.168.88.234
+    controlPlane: true
+    machineSpec:
+      mode: metal
+      arch: amd64
+      useUKI: true
+      secureboot: false
+
+    schematic:
+      customization:
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/amd-ucode
+            - siderolabs/iscsi-tools
+    nodeLabels:
+      type: production
+    nodeAnnotations:
+      installerUrl: '{{ .MachineConfig.MachineInstall.InstallImage }}'
+    nodeTaints:
+      node-role.kubernetes.io/control-plane: NoSchedule
+    disableSearchDomain: false
+    nameservers:
+      - 1.1.1.1
+      - 8.8.8.8
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: "BC:24:DC:AF:CD:B3"
+        dhcp: true
+        mtu: 9000
+        routes:
+          - network: 192.168.88.0/24
+      - deviceSelector:
+          hardwareAddr: BC:24:FF:BE:F9:E3
+        dhcp: true
+        mtu: 1500
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 172.16.100.1
+  - hostname: cpu-worker0
+    ipAddress: 192.168.88.241
+    controlPlane: false
+    installDisk: /dev/sda
+    schematic:
+      customization:
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/amd-ucode
+            - siderolabs/iscsi-tools
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: BC:24:11:AE:E4:B3
+        dhcp: true
+        mtu: 9000
+        routes:
+          - network: 192.168.88.0/24
+      - deviceSelector:
+          hardwareAddr: BC:24:11:77:23:84
+        dhcp: true
+        mtu: 1500
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 172.16.100.1
+
+  - hostname: gpu-worker0
+    ipAddress: 192.168.88.240
+    controlPlane: false
+    installDisk: /dev/sda
+    nodeTaints:
+      nvidia.com/gpu: NoSchedule
+    patches:
+      - |-
+        - op: add
+          path: /machine/kernel
+          value:
+            modules:
+              - name: nvidia
+              - name: nvidia_uvm
+              - name: nvidia_drm
+              - name: nvidia_modeset
+        - op: add
+          path: /machine/sysctls
+          value:
+            net.core.bpf_jit_harden: 1
+    schematic:
+      customization:
+        systemExtensions:
+          officialExtensions:
+            - siderolabs/amd-ucode
+            - siderolabs/iscsi-tools
+            - siderolabs/nvidia-open-gpu-kernel-modules-production
+            - siderolabs/nvidia-container-toolkit-production
+    networkInterfaces:
+      - deviceSelector:
+          hardwareAddr: BC:24:11:AE:E4:B3
+        dhcp: true
+        mtu: 9000
+        routes:
+          - network: 192.168.88.0/24
+      - deviceSelector:
+          hardwareAddr: BC:24:11:77:23:84
+        dhcp: true
+        mtu: 1500
+        routes:
+          - network: 0.0.0.0/0
+            gateway: 172.16.100.1

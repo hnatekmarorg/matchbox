@@ -18,7 +18,6 @@ resource "vault_token" "proxy" {
     destination = "/root/.vault-token"
     content     = vault_token.proxy.client_token
   }
-
 }
 
 resource "porkbun_dns_record" "proxy" {
