@@ -1,0 +1,8 @@
+{
+  "name": "all",
+  "profile": "kubernetes-gpu-worker1",
+  "selector": {
+    "mac": "0E:D2:B2:3E:F6:0B"
+  },
+  "metadata": {}
+}
